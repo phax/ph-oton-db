@@ -40,12 +40,12 @@ import com.helger.db.api.helper.DBValueHelper;
 import com.helger.db.jdbc.callback.ConstantPreparedStatementDataProvider;
 import com.helger.db.jdbc.executor.DBExecutor;
 import com.helger.db.jdbc.executor.DBResultRow;
+import com.helger.db.jdbc.mgr.AbstractJDBCEnabledManager;
 import com.helger.photon.audit.AuditItem;
 import com.helger.photon.audit.EAuditActionType;
 import com.helger.photon.audit.IAuditActionStringProvider;
 import com.helger.photon.audit.IAuditItem;
 import com.helger.photon.audit.IAuditor;
-import com.helger.photon.jdbc.AbstractJDBCEnabledManager;
 import com.helger.security.authentication.subject.user.CUserID;
 import com.helger.security.authentication.subject.user.ICurrentUserIDProvider;
 

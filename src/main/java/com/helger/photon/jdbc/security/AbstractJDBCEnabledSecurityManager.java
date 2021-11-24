@@ -32,13 +32,13 @@ import com.helger.commons.collection.impl.ICommonsOrderedMap;
 import com.helger.commons.collection.impl.ICommonsSet;
 import com.helger.commons.string.StringHelper;
 import com.helger.db.jdbc.executor.DBExecutor;
+import com.helger.db.jdbc.mgr.AbstractJDBCEnabledManager;
 import com.helger.json.IJson;
 import com.helger.json.IJsonArray;
 import com.helger.json.IJsonObject;
 import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
 import com.helger.json.serialize.JsonReader;
-import com.helger.photon.jdbc.AbstractJDBCEnabledManager;
 
 /**
  * A special JDBC enabled manager with common methods for the security managers.
