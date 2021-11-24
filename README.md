@@ -1,2 +1,3 @@
-# ph-oton-db
-Temporary repository to mix ph-oton with DB requires. Once stable merged into ph-oton
+# ph-oton-sql
+
+Temporary repository to mix ph-oton with SQL requirements. Once stable merged into ph-oton

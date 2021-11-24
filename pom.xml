@@ -24,12 +24,13 @@
     <artifactId>parent-pom</artifactId>
     <version>1.11.4</version>
   </parent>
-  <artifactId>ph-oton-db</artifactId>
+  <groupId>com.helger.photon</groupId>
+  <artifactId>ph-oton-sql</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
-  <name>ph-oton-db</name>
-  <description>Adds reusable DB functionality for ph-oton components</description>
-  <url>https://github.com/phax/ph-oton-db</url>
+  <name>ph-oton-sql</name>
+  <description>Adds reusable SQL functionality for ph-oton components</description>
+  <url>https://github.com/phax/ph-oton-sql</url>
   <inceptionYear>2021</inceptionYear>
 
   <licenses>
@@ -121,8 +122,8 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Automatic-Module-Name>com.helger.photon.db</Automatic-Module-Name>
-            <Export-Package>com.helger.photon.db.*</Export-Package>
+            <Automatic-Module-Name>com.helger.photon.sql</Automatic-Module-Name>
+            <Export-Package>com.helger.photon.sql.*</Export-Package>
             <Import-Package>!javax.annotation.*,*</Import-Package>
           </instructions>
         </configuration>
