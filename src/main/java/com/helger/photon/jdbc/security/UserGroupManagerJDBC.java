@@ -61,18 +61,28 @@ import com.helger.photon.security.usergroup.UserGroupManager;
  */
 public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager implements IUserGroupManager
 {
+  private final String m_sTableName;
   private final IUserManager m_aUserMgr;
   private final IRoleManager m_aRoleMgr;
 
   private final CallbackList <IUserGroupModificationCallback> m_aCallbacks = new CallbackList <> ();
 
   public UserGroupManagerJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier,
+                               @Nonnull final String sTableNamePrefix,
                                @Nonnull final IUserManager aUserMgr,
                                @Nonnull final IRoleManager aRoleMgr)
   {
     super (aDBExecSupplier);
+    m_sTableName = sTableNamePrefix + "secusergroup";
     m_aUserMgr = ValueEnforcer.notNull (aUserMgr, "UserManager");
     m_aRoleMgr = ValueEnforcer.notNull (aRoleMgr, "RoleManager");
+  }
+
+  @Nonnull
+  @Nonempty
+  public final String getTableName ()
+  {
+    return m_sTableName;
   }
 
   @Nonnull
@@ -96,7 +106,8 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
     final ICommonsList <DBResultRow> aDBResult;
     String sSQL = "SELECT id, creationdt, creationuserid, lastmoddt, lastmoduserid, deletedt, deleteuserid, attrs," +
                   " name, description, userids, roleids" +
-                  " FROM smp_secusergroup";
+                  " FROM " +
+                  m_sTableName;
     if (StringHelper.hasText (sCondition))
     {
       // Condition present
@@ -143,7 +154,7 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
     if (StringHelper.hasNoText (sID))
       return false;
 
-    return newExecutor ().queryCount ("SELECT COUNT(*) FROM smp_secusergroup WHERE id=?",
+    return newExecutor ().queryCount ("SELECT COUNT(*) FROM " + m_sTableName + " WHERE id=?",
                                       new ConstantPreparedStatementDataProvider (sID)) > 0;
   }
 
@@ -210,7 +221,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
     final DBExecutor aExecutor = newExecutor ();
     return aExecutor.performInTransaction ( () -> {
       // Create new
-      final long nCreated = aExecutor.insertOrUpdateOrDelete ("INSERT INTO smp_secusergroup (id, creationdt, creationuserid, lastmoddt, lastmoduserid, deletedt, deleteuserid, attrs," +
+      final long nCreated = aExecutor.insertOrUpdateOrDelete ("INSERT INTO " +
+                                                              m_sTableName +
+                                                              " (id, creationdt, creationuserid, lastmoddt, lastmoduserid, deletedt, deleteuserid, attrs," +
                                                               " name, description, userids, roleids)" +
                                                               " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.getTrimmedToLength (aUserGroup.getID (),
@@ -298,7 +311,7 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
     final DBExecutor aExecutor = newExecutor ();
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Update existing
-      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secusergroup SET deletedt=?, deleteuserid=? WHERE id=?",
+      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " + m_sTableName + " SET deletedt=?, deleteuserid=? WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
                                                                                                                                            20),
@@ -338,7 +351,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
     final DBExecutor aExecutor = newExecutor ();
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Update existing
-      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secusergroup SET lastmoddt=?, lastmoduserid=?, deletedt=NULL, deleteuserid=NULL WHERE id=?",
+      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
+                                                              m_sTableName +
+                                                              " SET lastmoddt=?, lastmoduserid=?, deletedt=NULL, deleteuserid=NULL WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
                                                                                                                                            20),
@@ -377,7 +392,8 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
     final Wrapper <DBResultRow> aDBResult = new Wrapper <> ();
     newExecutor ().querySingle ("SELECT creationdt, creationuserid, lastmoddt, lastmoduserid, deletedt, deleteuserid, attrs," +
                                 " name, description, userids, roleids" +
-                                " FROM smp_secusergroup" +
+                                " FROM " +
+                                m_sTableName +
                                 " WHERE id=?",
                                 new ConstantPreparedStatementDataProvider (sUserGroupID),
                                 aDBResult::set);
@@ -423,7 +439,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
     final DBExecutor aExecutor = newExecutor ();
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Update existing
-      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secusergroup SET name=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
+      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
+                                                              m_sTableName +
+                                                              " SET name=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (sNewName,
                                                                                                          DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
@@ -466,7 +484,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
     final DBExecutor aExecutor = newExecutor ();
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Update existing
-      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secusergroup SET name=?, description=?, attrs=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
+      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
+                                                              m_sTableName +
+                                                              " SET name=?, description=?, attrs=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (sNewName,
                                                                                                          sNewDescription,
                                                                                                          attrsToString (aNewCustomAttrs),
@@ -518,7 +538,7 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Get existing users
       final Wrapper <DBResultRow> aDBResult = new Wrapper <> ();
-      newExecutor ().querySingle ("SELECT userids FROM smp_secusergroup WHERE id=?",
+      newExecutor ().querySingle ("SELECT userids FROM " + m_sTableName + " WHERE id=?",
                                   new ConstantPreparedStatementDataProvider (sUserGroupID),
                                   aDBResult::set);
       ICommonsSet <String> aAssignedIDs = aDBResult.isNotSet () ? null : idsToSet (aDBResult.get ().getAsString (0));
@@ -530,7 +550,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
         aWasAdded.set (true);
 
         // Update existing
-        final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secusergroup SET userids=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
+        final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
+                                                                m_sTableName +
+                                                                " SET userids=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
                                                                 new ConstantPreparedStatementDataProvider (idsToString (aAssignedIDs),
                                                                                                            DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                            DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
@@ -582,7 +604,7 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Get existing users
       final Wrapper <DBResultRow> aDBResult = new Wrapper <> ();
-      newExecutor ().querySingle ("SELECT userids FROM smp_secusergroup WHERE id=?",
+      newExecutor ().querySingle ("SELECT userids FROM " + m_sTableName + " WHERE id=?",
                                   new ConstantPreparedStatementDataProvider (sUserGroupID),
                                   aDBResult::set);
       final ICommonsSet <String> aAssignedIDs = aDBResult.isNotSet () ? null : idsToSet (aDBResult.get ().getAsString (0));
@@ -592,7 +614,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
         aWasRemoved.set (true);
 
         // Update existing
-        final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secusergroup SET userids=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
+        final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
+                                                                m_sTableName +
+                                                                " SET userids=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
                                                                 new ConstantPreparedStatementDataProvider (idsToString (aAssignedIDs),
                                                                                                            DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                            DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
@@ -641,7 +665,7 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
     final DBExecutor aExecutor = newExecutor ();
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Get all existing assignments
-      final ICommonsList <DBResultRow> aRows = newExecutor ().queryAll ("SELECT id, userids FROM smp_secusergroup");
+      final ICommonsList <DBResultRow> aRows = newExecutor ().queryAll ("SELECT id, userids FROM " + m_sTableName);
       for (final DBResultRow aRow : aRows)
       {
         final String sUserGroupID = aRow.getAsString (0);
@@ -652,7 +676,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
           aAffectedUserGroups.add (sUserGroupID);
 
           // Update existing
-          final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secusergroup SET userids=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
+          final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
+                                                                  m_sTableName +
+                                                                  " SET userids=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
                                                                   new ConstantPreparedStatementDataProvider (idsToString (aAssignedIDs),
                                                                                                              DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                              DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
@@ -721,7 +747,7 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Get existing users
       final Wrapper <DBResultRow> aDBResult = new Wrapper <> ();
-      newExecutor ().querySingle ("SELECT roleids FROM smp_secusergroup WHERE id=?",
+      newExecutor ().querySingle ("SELECT roleids FROM " + m_sTableName + " WHERE id=?",
                                   new ConstantPreparedStatementDataProvider (sUserGroupID),
                                   aDBResult::set);
       ICommonsSet <String> aAssignedIDs = aDBResult.isNotSet () ? null : idsToSet (aDBResult.get ().getAsString (0));
@@ -733,7 +759,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
         aWasAdded.set (true);
 
         // Update existing
-        final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secusergroup SET roleids=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
+        final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
+                                                                m_sTableName +
+                                                                " SET roleids=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
                                                                 new ConstantPreparedStatementDataProvider (idsToString (aAssignedIDs),
                                                                                                            DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                            DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
@@ -785,7 +813,7 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Get existing users
       final Wrapper <DBResultRow> aDBResult = new Wrapper <> ();
-      newExecutor ().querySingle ("SELECT roleids FROM smp_secusergroup WHERE id=?",
+      newExecutor ().querySingle ("SELECT roleids FROM " + m_sTableName + " WHERE id=?",
                                   new ConstantPreparedStatementDataProvider (sUserGroupID),
                                   aDBResult::set);
       final ICommonsSet <String> aAssignedIDs = aDBResult.isNotSet () ? null : idsToSet (aDBResult.get ().getAsString (0));
@@ -795,7 +823,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
         aWasRemoved.set (true);
 
         // Update existing
-        final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secusergroup SET roleids=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
+        final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
+                                                                m_sTableName +
+                                                                " SET roleids=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
                                                                 new ConstantPreparedStatementDataProvider (idsToString (aAssignedIDs),
                                                                                                            DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                            DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
@@ -844,7 +874,7 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
     final DBExecutor aExecutor = newExecutor ();
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Get all existing assignments
-      final ICommonsList <DBResultRow> aRows = newExecutor ().queryAll ("SELECT id, roleids FROM smp_secusergroup");
+      final ICommonsList <DBResultRow> aRows = newExecutor ().queryAll ("SELECT id, roleids FROM " + m_sTableName);
       for (final DBResultRow aRow : aRows)
       {
         final String sUserGroupID = aRow.getAsString (0);
@@ -855,7 +885,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
           aAffectedUserGroups.add (sUserGroupID);
 
           // Update existing
-          final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secusergroup SET roleids=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
+          final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
+                                                                  m_sTableName +
+                                                                  " SET roleids=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
                                                                   new ConstantPreparedStatementDataProvider (idsToString (aAssignedIDs),
                                                                                                              DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                              DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),

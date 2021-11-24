@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
+import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
@@ -56,9 +57,9 @@ import com.helger.security.authentication.subject.user.ICurrentUserIDProvider;
  */
 public class AuditorJDBC extends AbstractJDBCEnabledManager implements IAuditor
 {
-  public static final int OBJECT_TYPE_MAX_LENGTH = 100;
   private static final Logger LOGGER = LoggerFactory.getLogger (AuditorJDBC.class);
 
+  private final String m_sTableName;
   private final ICurrentUserIDProvider m_aCurrentUserIDProvider;
 
   /**
@@ -67,13 +68,26 @@ public class AuditorJDBC extends AbstractJDBCEnabledManager implements IAuditor
    * @param aDBExecSupplier
    *        The supplier for {@link DBExecutor} objects. May not be
    *        <code>null</code>.
+   * @param sTableNamePrefix
+   *        A prefix for database table names used by this classes. May not be
+   *        <code>null</code> but maybe empty.
    * @param aCurrentUserIDProvider
    *        The current user ID provider. May not be <code>null</code>.
    */
-  public AuditorJDBC (final Supplier <? extends DBExecutor> aDBExecSupplier, @Nonnull final ICurrentUserIDProvider aCurrentUserIDProvider)
+  public AuditorJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier,
+                      @Nonnull final String sTableNamePrefix,
+                      @Nonnull final ICurrentUserIDProvider aCurrentUserIDProvider)
   {
     super (aDBExecSupplier);
+    m_sTableName = sTableNamePrefix + "audit";
     m_aCurrentUserIDProvider = ValueEnforcer.notNull (aCurrentUserIDProvider, "UserIDProvider");
+  }
+
+  @Nonnull
+  @Nonempty
+  public final String getTableName ()
+  {
+    return m_sTableName;
   }
 
   public void createAuditItem (@Nonnull final EAuditActionType eActionType,
@@ -84,7 +98,7 @@ public class AuditorJDBC extends AbstractJDBCEnabledManager implements IAuditor
   {
     // Maybe null, so default like XML version
     final String sUserID = StringHelper.getNotEmpty (m_aCurrentUserIDProvider.getCurrentUserID (), CUserID.USER_ID_GUEST);
-    // Combine arguments
+    // Combine arguments into one big JSON
     final String sFullAction = IAuditActionStringProvider.JSON.apply (aActionObjectType != null ? aActionObjectType.getName () : sAction,
                                                                       aArgs);
 
@@ -100,7 +114,9 @@ public class AuditorJDBC extends AbstractJDBCEnabledManager implements IAuditor
     }
     final ESuccess eDBSuccess = aExecutor.performInTransaction ( () -> {
       // Create new
-      final long nCreated = aExecutor.insertOrUpdateOrDelete ("INSERT INTO smp_audit (dt, userid, actiontype, success, action)" +
+      final long nCreated = aExecutor.insertOrUpdateOrDelete ("INSERT INTO " +
+                                                              m_sTableName +
+                                                              " (dt, userid, actiontype, success, action)" +
                                                               " VALUES (?, ?, ?, ?, ?)",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (sUserID,
@@ -111,7 +127,7 @@ public class AuditorJDBC extends AbstractJDBCEnabledManager implements IAuditor
                                                                                                          sFullAction));
       if (nCreated != 1)
       {
-        // This may be triggered on the first startup where the smp_audit table
+        // This may be triggered on the first startup where the audit table
         // is not yet present
         throw new IllegalStateException ("Failed to create new DB entry (" + nCreated + ")");
       }
@@ -128,7 +144,8 @@ public class AuditorJDBC extends AbstractJDBCEnabledManager implements IAuditor
     ValueEnforcer.isGT0 (nMaxItems, "MaxItems");
 
     final ICommonsList <IAuditItem> ret = new CommonsArrayList <> ();
-    final ICommonsList <DBResultRow> aDBResult = newExecutor ().queryAll ("SELECT dt, userid, actiontype, success, action FROM smp_audit" +
+    final ICommonsList <DBResultRow> aDBResult = newExecutor ().queryAll ("SELECT dt, userid, actiontype, success, action FROM " +
+                                                                          m_sTableName +
                                                                           " ORDER BY dt DESC" +
                                                                           " LIMIT ?",
                                                                           new ConstantPreparedStatementDataProvider (Integer.valueOf (nMaxItems)));
@@ -148,7 +165,7 @@ public class AuditorJDBC extends AbstractJDBCEnabledManager implements IAuditor
   public LocalDate getEarliestAuditDate ()
   {
     final Wrapper <DBResultRow> aDBResult = new Wrapper <> ();
-    newExecutor ().querySingle ("SELECT dt FROM smp_audit ORDER BY dt ASC LIMIT 1", aDBResult::set);
+    newExecutor ().querySingle ("SELECT dt FROM " + m_sTableName + " ORDER BY dt ASC LIMIT 1", aDBResult::set);
     if (aDBResult.isSet ())
     {
       // getAsLocalDate does not work

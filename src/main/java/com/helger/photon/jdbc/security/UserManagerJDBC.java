@@ -67,11 +67,20 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (UserManagerJDBC.class);
 
+  private final String m_sTableName;
   private final CallbackList <IUserModificationCallback> m_aCallbacks = new CallbackList <> ();
 
-  public UserManagerJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier)
+  public UserManagerJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier, @Nonnull final String sTableNamePrefix)
   {
     super (aDBExecSupplier);
+    m_sTableName = sTableNamePrefix + "secuser";
+  }
+
+  @Nonnull
+  @Nonempty
+  public final String getTableName ()
+  {
+    return m_sTableName;
   }
 
   @Nonnull
@@ -83,7 +92,8 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final ICommonsList <DBResultRow> aDBResult;
     String sSQL = "SELECT id, creationdt, creationuserid, lastmoddt, lastmoduserid, deletedt, deleteuserid, attrs," +
                   " loginname, email, pwalgo, pwsalt, pwhash, firstname, lastname, description, locale, lastlogindt, logincount, failedlogins, disabled" +
-                  " FROM smp_secuser";
+                  " FROM " +
+                  m_sTableName;
     if (StringHelper.hasText (sCondition))
     {
       // Condition present
@@ -142,7 +152,8 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     if (StringHelper.hasNoText (sID))
       return false;
 
-    return newExecutor ().queryCount ("SELECT COUNT(*) FROM smp_secuser WHERE id=?", new ConstantPreparedStatementDataProvider (sID)) > 0;
+    return newExecutor ().queryCount ("SELECT COUNT(*) FROM " + m_sTableName + " WHERE id=?",
+                                      new ConstantPreparedStatementDataProvider (sID)) > 0;
   }
 
   public boolean containsAllIDs (@Nullable final Iterable <String> aIDs)
@@ -185,7 +196,9 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final DBExecutor aExecutor = newExecutor ();
     return aExecutor.performInTransaction ( () -> {
       // Create new
-      final long nCreated = aExecutor.insertOrUpdateOrDelete ("INSERT INTO smp_secuser (id, creationdt, creationuserid, lastmoddt, lastmoduserid, deletedt, deleteuserid, attrs," +
+      final long nCreated = aExecutor.insertOrUpdateOrDelete ("INSERT INTO " +
+                                                              m_sTableName +
+                                                              " (id, creationdt, creationuserid, lastmoddt, lastmoduserid, deletedt, deleteuserid, attrs," +
                                                               " loginname, email, pwalgo, pwsalt, pwhash, firstname, lastname, description, locale, lastlogindt, logincount, failedlogins, disabled)" +
                                                               " VALUES (?, ?, ?, ?, ?, ?, ?, ?," +
                                                               "" +
@@ -344,7 +357,8 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final Wrapper <DBResultRow> aDBResult = new Wrapper <> ();
     newExecutor ().querySingle ("SELECT creationdt, creationuserid, lastmoddt, lastmoduserid, deletedt, deleteuserid, attrs," +
                                 " loginname, email, pwalgo, pwsalt, pwhash, firstname, lastname, description, locale, lastlogindt, logincount, failedlogins, disabled" +
-                                " FROM smp_secuser" +
+                                " FROM " +
+                                m_sTableName +
                                 " WHERE id=?",
                                 new ConstantPreparedStatementDataProvider (sUserID),
                                 aDBResult::set);
@@ -387,7 +401,8 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final Wrapper <DBResultRow> aDBResult = new Wrapper <> ();
     newExecutor ().querySingle ("SELECT id, creationdt, creationuserid, lastmoddt, lastmoduserid, deletedt, deleteuserid, attrs," +
                                 " email, pwalgo, pwsalt, pwhash, firstname, lastname, description, locale, lastlogindt, logincount, failedlogins, disabled" +
-                                " FROM smp_secuser" +
+                                " FROM " +
+                                m_sTableName +
                                 " WHERE loginname=?",
                                 new ConstantPreparedStatementDataProvider (sLoginName),
                                 aDBResult::set);
@@ -427,7 +442,8 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final Wrapper <DBResultRow> aDBResult = new Wrapper <> ();
     newExecutor ().querySingle ("SELECT id, creationdt, creationuserid, lastmoddt, lastmoduserid, deletedt, deleteuserid, attrs," +
                                 " loginname, pwalgo, pwsalt, pwhash, firstname, lastname, description, locale, lastlogindt, logincount, failedlogins, disabled" +
-                                " FROM smp_secuser" +
+                                " FROM " +
+                                m_sTableName +
                                 " WHERE " +
                                 (bIgnoreCase ? "UPPER(email)" : "email") +
                                 "=?",
@@ -492,7 +508,7 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
   @Nonnegative
   public long getActiveUserCount ()
   {
-    return newExecutor ().queryCount ("SELECT COUNT(*) FROM smp_secuser WHERE deletedt IS NULL AND disabled=false");
+    return newExecutor ().queryCount ("SELECT COUNT(*) FROM " + m_sTableName + " WHERE deletedt IS NULL AND disabled=false");
   }
 
   public boolean containsAnyActiveUser ()
@@ -539,7 +555,8 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final DBExecutor aExecutor = newExecutor ();
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Update existing
-      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secuser" +
+      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
+                                                              m_sTableName +
                                                               " SET loginname=?, email=?, firstname=?, lastname=?, description=?, locale=?, attrs=?, disabled=?, lastmoddt=?, lastmoduserid=?" +
                                                               " WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (sNewLoginName,
@@ -615,7 +632,8 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final DBExecutor aExecutor = newExecutor ();
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Update existing
-      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secuser" +
+      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
+                                                              m_sTableName +
                                                               " SET pwalgo=?, pwsalt=?, pwhash=?, lastmoddt=?, lastmoduserid=?" +
                                                               " WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (aPasswordHash.getAlgorithmName (),
@@ -663,7 +681,8 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final DBExecutor aExecutor = newExecutor ();
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Update existing
-      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secuser" +
+      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
+                                                              m_sTableName +
                                                               " SET lastlogindt=?, logincount=logincount + 1, failedlogins=0" +
                                                               " WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
@@ -699,7 +718,7 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final DBExecutor aExecutor = newExecutor ();
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Update existing
-      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secuser SET failedlogins=failedlogins + 1 WHERE id=?",
+      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " + m_sTableName + " SET failedlogins=failedlogins + 1 WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (sUserID));
       aUpdated.set (nUpdated);
     });
@@ -736,7 +755,7 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final DBExecutor aExecutor = newExecutor ();
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Update existing
-      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secuser SET deletedt=?, deleteuserid=? WHERE id=?",
+      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " + m_sTableName + " SET deletedt=?, deleteuserid=? WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
                                                                                                                                            20),
@@ -776,7 +795,9 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final DBExecutor aExecutor = newExecutor ();
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Update existing
-      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secuser SET lastmoddt=?, lastmoduserid=?, deletedt=NULL, deleteuserid=NULL WHERE id=?",
+      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
+                                                              m_sTableName +
+                                                              " SET lastmoddt=?, lastmoduserid=?, deletedt=NULL, deleteuserid=NULL WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
                                                                                                                                            20),
@@ -816,7 +837,9 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final DBExecutor aExecutor = newExecutor ();
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Update existing
-      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secuser SET disabled=true, lastmoddt=?, lastmoduserid=? WHERE id=?",
+      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
+                                                              m_sTableName +
+                                                              " SET disabled=true, lastmoddt=?, lastmoduserid=? WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
                                                                                                                                            20),
@@ -856,7 +879,9 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final DBExecutor aExecutor = newExecutor ();
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Update existing
-      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secuser SET disabled=false, lastmoddt=?, lastmoduserid=? WHERE id=?",
+      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
+                                                              m_sTableName +
+                                                              " SET disabled=false, lastmoddt=?, lastmoduserid=? WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
                                                                                                                                            20),

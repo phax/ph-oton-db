@@ -30,6 +30,7 @@ import com.helger.photon.audit.IAuditItem;
 import com.helger.photon.audit.IAuditManager;
 import com.helger.photon.audit.IAuditor;
 import com.helger.photon.security.login.LoggedInUserManager;
+import com.helger.security.authentication.subject.user.ICurrentUserIDProvider;
 
 /**
  * The JDBC based implementation of {@link IAuditManager}
@@ -40,9 +41,16 @@ public class AuditManagerJDBC implements IAuditManager
 {
   private final AuditorJDBC m_aAuditor;
 
-  public AuditManagerJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier)
+  public AuditManagerJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier, @Nonnull final String sTableNamePrefix)
   {
-    m_aAuditor = new AuditorJDBC (aDBExecSupplier, LoggedInUserManager.getInstance ());
+    this (aDBExecSupplier, sTableNamePrefix, LoggedInUserManager.getInstance ());
+  }
+
+  public AuditManagerJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier,
+                           @Nonnull final String sTableNamePrefix,
+                           @Nonnull final ICurrentUserIDProvider aCurrentUserIDProvider)
+  {
+    m_aAuditor = new AuditorJDBC (aDBExecSupplier, sTableNamePrefix, aCurrentUserIDProvider);
   }
 
   public boolean isInMemory ()

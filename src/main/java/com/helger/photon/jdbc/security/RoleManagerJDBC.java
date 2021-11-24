@@ -55,11 +55,20 @@ import com.helger.photon.security.role.RoleManager;
  */
 public class RoleManagerJDBC extends AbstractJDBCEnabledSecurityManager implements IRoleManager
 {
+  private final String m_sTableName;
   private final CallbackList <IRoleModificationCallback> m_aCallbacks = new CallbackList <> ();
 
-  public RoleManagerJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier)
+  public RoleManagerJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier, @Nonnull final String sTableNamePrefix)
   {
     super (aDBExecSupplier);
+    m_sTableName = sTableNamePrefix + "secrole";
+  }
+
+  @Nonnull
+  @Nonempty
+  public final String getTableName ()
+  {
+    return m_sTableName;
   }
 
   @Nonnull
@@ -69,7 +78,8 @@ public class RoleManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final ICommonsList <IRole> ret = new CommonsArrayList <> ();
     final ICommonsList <DBResultRow> aDBResult = newExecutor ().queryAll ("SELECT id, creationdt, creationuserid, lastmoddt, lastmoduserid, deletedt, deleteuserid, attrs," +
                                                                           " name, description" +
-                                                                          " FROM smp_secrole");
+                                                                          " FROM " +
+                                                                          m_sTableName);
     if (aDBResult != null)
       for (final DBResultRow aRow : aDBResult)
       {
@@ -91,7 +101,8 @@ public class RoleManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     if (StringHelper.hasNoText (sID))
       return false;
 
-    return newExecutor ().queryCount ("SELECT COUNT(*) FROM smp_secrole WHERE id=?", new ConstantPreparedStatementDataProvider (sID)) > 0;
+    return newExecutor ().queryCount ("SELECT COUNT(*) FROM " + m_sTableName + " WHERE id=?",
+                                      new ConstantPreparedStatementDataProvider (sID)) > 0;
   }
 
   public boolean containsAllIDs (@Nullable final Iterable <String> aIDs)
@@ -127,7 +138,9 @@ public class RoleManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final DBExecutor aExecutor = newExecutor ();
     return aExecutor.performInTransaction ( () -> {
       // Create new
-      final long nCreated = aExecutor.insertOrUpdateOrDelete ("INSERT INTO smp_secrole (id, creationdt, creationuserid, lastmoddt, lastmoduserid, deletedt, deleteuserid, attrs," +
+      final long nCreated = aExecutor.insertOrUpdateOrDelete ("INSERT INTO " +
+                                                              m_sTableName +
+                                                              " (id, creationdt, creationuserid, lastmoddt, lastmoduserid, deletedt, deleteuserid, attrs," +
                                                               " name, description)" +
                                                               " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.getTrimmedToLength (aRole.getID (),
@@ -211,7 +224,7 @@ public class RoleManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final DBExecutor aExecutor = newExecutor ();
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Update existing
-      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secrole SET deletedt=?, deleteuserid=? WHERE id=?",
+      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " + m_sTableName + " SET deletedt=?, deleteuserid=? WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
                                                                                                                                            20),
@@ -250,7 +263,8 @@ public class RoleManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final Wrapper <DBResultRow> aDBResult = new Wrapper <> ();
     newExecutor ().querySingle ("SELECT creationdt, creationuserid, lastmoddt, lastmoduserid, deletedt, deleteuserid, attrs," +
                                 " name, description" +
-                                " FROM smp_secrole" +
+                                " FROM " +
+                                m_sTableName +
                                 " WHERE id=?",
                                 new ConstantPreparedStatementDataProvider (sRoleID),
                                 aDBResult::set);
@@ -279,7 +293,9 @@ public class RoleManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final DBExecutor aExecutor = newExecutor ();
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Update existing
-      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secrole SET name=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
+      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
+                                                              m_sTableName +
+                                                              " SET name=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (sNewName,
                                                                                                          DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
@@ -323,7 +339,9 @@ public class RoleManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
     final DBExecutor aExecutor = newExecutor ();
     final ESuccess eSuccess = aExecutor.performInTransaction ( () -> {
       // Update existing
-      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE smp_secrole SET name=?, description=?, attrs=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
+      final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
+                                                              m_sTableName +
+                                                              " SET name=?, description=?, attrs=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (sNewName,
                                                                                                          sNewDescription,
                                                                                                          attrsToString (aNewCustomAttrs),
