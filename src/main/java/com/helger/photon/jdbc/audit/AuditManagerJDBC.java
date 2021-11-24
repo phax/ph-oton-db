@@ -17,6 +17,7 @@
 package com.helger.photon.jdbc.audit;
 
 import java.time.LocalDate;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnegative;
@@ -41,16 +42,17 @@ public class AuditManagerJDBC implements IAuditManager
 {
   private final AuditorJDBC m_aAuditor;
 
-  public AuditManagerJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier, @Nonnull final String sTableNamePrefix)
+  public AuditManagerJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier,
+                           @Nonnull final Function <String, String> aTableNameCustomizer)
   {
-    this (aDBExecSupplier, sTableNamePrefix, LoggedInUserManager.getInstance ());
+    this (aDBExecSupplier, aTableNameCustomizer, LoggedInUserManager.getInstance ());
   }
 
   public AuditManagerJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier,
-                           @Nonnull final String sTableNamePrefix,
+                           @Nonnull final Function <String, String> aTableNameCustomizer,
                            @Nonnull final ICurrentUserIDProvider aCurrentUserIDProvider)
   {
-    m_aAuditor = new AuditorJDBC (aDBExecSupplier, sTableNamePrefix, aCurrentUserIDProvider);
+    m_aAuditor = new AuditorJDBC (aDBExecSupplier, aTableNameCustomizer, aCurrentUserIDProvider);
   }
 
   public boolean isInMemory ()

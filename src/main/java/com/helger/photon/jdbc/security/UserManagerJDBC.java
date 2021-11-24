@@ -18,6 +18,7 @@ package com.helger.photon.jdbc.security;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnegative;
@@ -70,10 +71,11 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
   private final String m_sTableName;
   private final CallbackList <IUserModificationCallback> m_aCallbacks = new CallbackList <> ();
 
-  public UserManagerJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier, @Nonnull final String sTableNamePrefix)
+  public UserManagerJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier,
+                          @Nonnull final Function <String, String> aTableNameCustomizer)
   {
     super (aDBExecSupplier);
-    m_sTableName = sTableNamePrefix + "secuser";
+    m_sTableName = aTableNameCustomizer.apply ("secuser");
   }
 
   @Nonnull

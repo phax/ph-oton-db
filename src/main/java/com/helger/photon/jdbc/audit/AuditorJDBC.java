@@ -18,6 +18,7 @@ package com.helger.photon.jdbc.audit;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnegative;
@@ -68,18 +69,18 @@ public class AuditorJDBC extends AbstractJDBCEnabledManager implements IAuditor
    * @param aDBExecSupplier
    *        The supplier for {@link DBExecutor} objects. May not be
    *        <code>null</code>.
-   * @param sTableNamePrefix
-   *        A prefix for database table names used by this classes. May not be
-   *        <code>null</code> but maybe empty.
+   * @param aTableNameCustomizer
+   *        A customizer for database table names used by this class. May not be
+   *        <code>null</code>.
    * @param aCurrentUserIDProvider
    *        The current user ID provider. May not be <code>null</code>.
    */
   public AuditorJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier,
-                      @Nonnull final String sTableNamePrefix,
+                      @Nonnull final Function <String, String> aTableNameCustomizer,
                       @Nonnull final ICurrentUserIDProvider aCurrentUserIDProvider)
   {
     super (aDBExecSupplier);
-    m_sTableName = sTableNamePrefix + "audit";
+    m_sTableName = aTableNameCustomizer.apply ("audit");
     m_aCurrentUserIDProvider = ValueEnforcer.notNull (aCurrentUserIDProvider, "UserIDProvider");
   }
 

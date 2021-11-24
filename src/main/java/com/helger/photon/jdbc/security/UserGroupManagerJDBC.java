@@ -17,6 +17,7 @@
 package com.helger.photon.jdbc.security;
 
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
@@ -68,12 +69,12 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
   private final CallbackList <IUserGroupModificationCallback> m_aCallbacks = new CallbackList <> ();
 
   public UserGroupManagerJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier,
-                               @Nonnull final String sTableNamePrefix,
+                               @Nonnull final Function <String, String> aTableNameCustomizer,
                                @Nonnull final IUserManager aUserMgr,
                                @Nonnull final IRoleManager aRoleMgr)
   {
     super (aDBExecSupplier);
-    m_sTableName = sTableNamePrefix + "secusergroup";
+    m_sTableName = aTableNameCustomizer.apply ("secusergroup");
     m_aUserMgr = ValueEnforcer.notNull (aUserMgr, "UserManager");
     m_aRoleMgr = ValueEnforcer.notNull (aRoleMgr, "RoleManager");
   }

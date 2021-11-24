@@ -17,6 +17,7 @@
 package com.helger.photon.jdbc.security;
 
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
@@ -58,10 +59,11 @@ public class RoleManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
   private final String m_sTableName;
   private final CallbackList <IRoleModificationCallback> m_aCallbacks = new CallbackList <> ();
 
-  public RoleManagerJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier, @Nonnull final String sTableNamePrefix)
+  public RoleManagerJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier,
+                          @Nonnull final Function <String, String> aTableNameCustomizer)
   {
     super (aDBExecSupplier);
-    m_sTableName = sTableNamePrefix + "secrole";
+    m_sTableName = aTableNameCustomizer.apply ("secrole");
   }
 
   @Nonnull

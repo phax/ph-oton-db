@@ -16,6 +16,7 @@
  */
 package com.helger.photon.jdbc;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
@@ -44,40 +45,40 @@ import com.helger.photon.security.usergroup.IUserGroupManager;
 public class PhotonSecurityManagerFactoryJDBC implements IFactory
 {
   private final Supplier <? extends DBExecutor> m_aDBExecSupplier;
-  private final String m_sTableNamePrefix;
+  private final Function <String, String> m_aTableNameCustomizer;
 
   public PhotonSecurityManagerFactoryJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier,
-                                           @Nonnull final String sTableNamePrefix)
+                                           @Nonnull final Function <String, String> aTableNameCustomizer)
   {
     ValueEnforcer.notNull (aDBExecSupplier, "DBExecSupplier");
-    ValueEnforcer.notNull (sTableNamePrefix, "TableNamePrefix");
+    ValueEnforcer.notNull (aTableNameCustomizer, "TableNameCustomizer");
     m_aDBExecSupplier = aDBExecSupplier;
-    m_sTableNamePrefix = sTableNamePrefix;
+    m_aTableNameCustomizer = aTableNameCustomizer;
   }
 
   @Nonnull
   public IAuditManager createAuditManager () throws Exception
   {
-    return new AuditManagerJDBC (m_aDBExecSupplier, m_sTableNamePrefix);
+    return new AuditManagerJDBC (m_aDBExecSupplier, m_aTableNameCustomizer);
   }
 
   @Nonnull
   public IUserManager createUserMgr () throws DAOException
   {
-    return new UserManagerJDBC (m_aDBExecSupplier, m_sTableNamePrefix);
+    return new UserManagerJDBC (m_aDBExecSupplier, m_aTableNameCustomizer);
   }
 
   @Nonnull
   public IRoleManager createRoleMgr () throws DAOException
   {
-    return new RoleManagerJDBC (m_aDBExecSupplier, m_sTableNamePrefix);
+    return new RoleManagerJDBC (m_aDBExecSupplier, m_aTableNameCustomizer);
   }
 
   @Nonnull
   public IUserGroupManager createUserGroupMgr (@Nonnull final IUserManager aUserMgr,
                                                @Nonnull final IRoleManager aRoleMgr) throws DAOException
   {
-    return new UserGroupManagerJDBC (m_aDBExecSupplier, m_sTableNamePrefix, aUserMgr, aRoleMgr);
+    return new UserGroupManagerJDBC (m_aDBExecSupplier, m_aTableNameCustomizer, aUserMgr, aRoleMgr);
   }
 
   @Nonnull
@@ -91,20 +92,21 @@ public class PhotonSecurityManagerFactoryJDBC implements IFactory
    * @param aDBExecSupplier
    *        The main supplier for {@link DBExecutor} objects. This will be
    *        passed to all the main managers. May not be <code>null</code>.
-   * @param sTableNamePrefix
-   *        A prefix for database table names used by this classes. May not be
-   *        <code>null</code> but maybe empty.
+   * @param aTableNameCustomizer
+   *        A customizer for database table names used by this class. May not be
+   *        <code>null</code>.
    */
-  public static void install (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier, @Nonnull final String sTableNamePrefix)
+  public static void install (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier,
+                              @Nonnull final Function <String, String> aTableNameCustomizer)
   {
     ValueEnforcer.notNull (aDBExecSupplier, "DBExecSupplier");
-    ValueEnforcer.notNull (sTableNamePrefix, "TableNamePrefix");
+    ValueEnforcer.notNull (aTableNameCustomizer, "TableNameCustomizer");
 
     if (PhotonSecurityManager.isAlreadyInitialized ())
       throw new IllegalStateException ("PhotonSecurityManager is already initialized - call this method earlier");
 
     // First set the factory
-    PhotonSecurityManager.setFactory (new PhotonSecurityManagerFactoryJDBC (aDBExecSupplier, sTableNamePrefix));
+    PhotonSecurityManager.setFactory (new PhotonSecurityManagerFactoryJDBC (aDBExecSupplier, aTableNameCustomizer));
     // then get it installed
     PhotonSecurityManager.getInstance ();
   }
