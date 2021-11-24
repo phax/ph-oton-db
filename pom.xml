@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2014-2021 Philip Helger (www.helger.com)
+    Copyright (C) 2021 Philip Helger (www.helger.com)
     philip[at]helger[dot]com
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -73,14 +73,14 @@
       <dependency>
         <groupId>com.helger</groupId>
         <artifactId>ph-db-parent-pom</artifactId>
-        <version>6.7.2</version>
+        <version>6.7.3-SNAPSHOT</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>com.helger.photon</groupId>
         <artifactId>ph-oton-parent-pom</artifactId>
-        <version>8.3.1</version>
+        <version>8.3.2-SNAPSHOT</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -88,6 +88,10 @@
   </dependencyManagement>
 
   <dependencies>
+    <dependency>
+      <groupId>com.helger.photon</groupId>
+      <artifactId>ph-oton-audit</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.helger.photon</groupId>
       <artifactId>ph-oton-security</artifactId>
