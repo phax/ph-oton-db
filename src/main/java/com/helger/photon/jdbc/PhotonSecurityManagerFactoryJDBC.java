@@ -82,4 +82,12 @@ public class PhotonSecurityManagerFactoryJDBC implements IFactory
     return new UserTokenManager (PhotonSecurityManager.FactoryXML.DIRECTORY_SECURITY +
                                  PhotonSecurityManager.FactoryXML.FILENAME_USERTOKENS_XML);
   }
+
+  public static void install (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier)
+  {
+    // First set the factory
+    PhotonSecurityManager.setFactory (new PhotonSecurityManagerFactoryJDBC (aDBExecSupplier));
+    // then get it installed
+    PhotonSecurityManager.getInstance ();
+  }
 }
