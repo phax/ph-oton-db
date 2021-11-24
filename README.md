@@ -2,6 +2,18 @@
 
 Temporary repository to mix ph-oton with SQL requirements using JDBC access. Once stable merged into ph-oton.
 
+## Usage
+
+Maven coordinates (replace `x.y.z` with the latest version):
+
+```xml
+<dependency>
+  <groupId>com.helger.photon</groupId>
+  <artifactId>ph-oton-jdbc</artifactId>
+  <version>x.y.z</version>
+</dependency>
+```
+
 ## Table layout MySQL
 
 Note: Table names can be customized in the code. This is the "plain" version.
