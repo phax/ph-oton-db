@@ -2,7 +2,7 @@
 
 Temporary repository to mix ph-oton with SQL requirements using JDBC access. Once stable merged into ph-oton.
 
-## Usage
+# Usage
 
 Maven coordinates (replace `x.y.z` with the latest version):
 
@@ -14,11 +14,11 @@ Maven coordinates (replace `x.y.z` with the latest version):
 </dependency>
 ```
 
-## Table layout MySQL
+# Table layout MySQL
 
 Note: Table names can be customized in the code. This is the "plain" version.
 
-### Auditing
+## Auditing
 
 ```sql
 CREATE TABLE `audit` (
@@ -32,7 +32,7 @@ CREATE TABLE `audit` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Audit';
 ```
 
-### Security Roles
+## Security Roles
 
 ```sql
 CREATE TABLE `secrole` (
@@ -50,7 +50,7 @@ CREATE TABLE `secrole` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Roles';
 ```
 
-### Security User
+## Security User
 
 ```sql
 CREATE TABLE `secuser` (
@@ -79,7 +79,7 @@ CREATE TABLE `secuser` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Users';
 ```
 
-### Security User Groups
+## Security User Groups
 
 ```sql
 CREATE TABLE `secusergroup` (
@@ -99,12 +99,12 @@ CREATE TABLE `secusergroup` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='User Groups';
 ```
 
-## Table layout PostgreSQL
+# Table layout PostgreSQL
 
 
 Note: Table names can be customized in the code. This is the "plain" version.
 
-### Auditing
+## Auditing
 
 ```sql
 CREATE TABLE audit (
@@ -118,7 +118,7 @@ CREATE TABLE audit (
 );
 ```
 
-### Security Roles
+## Security Roles
 
 ```sql
 CREATE TABLE secrole (
@@ -136,7 +136,7 @@ CREATE TABLE secrole (
 );
 ```
 
-### Security User
+## Security User
 
 ```sql
 CREATE TABLE secuser (
@@ -165,7 +165,7 @@ CREATE TABLE secuser (
 );
 ```
 
-### Security User Groups
+## Security User Groups
 
 ```sql
 CREATE TABLE secusergroup (
@@ -184,3 +184,14 @@ CREATE TABLE secusergroup (
   PRIMARY KEY (id)
 );
 ```
+
+# News and noteworthy
+
+* v1.0.0 - 2021-11-24
+    * Initial version based on ph-oton 8.3.2 and ph-db 6.7.3
+
+---
+
+My personal [Coding Styleguide](https://github.com/phax/meta/blob/master/CodingStyleguide.md) |
+On Twitter: <a href="https://twitter.com/philiphelger">@philiphelger</a> |
+Kindly supported by [YourKit Java Profiler](https://www.yourkit.com)
