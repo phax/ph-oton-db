@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Philip Helger and contributors
+ * Copyright (C) 2021 Philip Helger (www.helger.com)
  * philip[at]helger[dot]com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.photon.sql.security;
+package com.helger.photon.jdbc.security;
 
 import java.util.Map;
 import java.util.function.Supplier;
@@ -38,7 +38,7 @@ import com.helger.json.IJsonObject;
 import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
 import com.helger.json.serialize.JsonReader;
-import com.helger.photon.sql.AbstractJDBCEnabledManager;
+import com.helger.photon.jdbc.AbstractJDBCEnabledManager;
 
 /**
  * A special JDBC enabled manager with common methods for the security managers.

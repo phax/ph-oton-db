@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Philip Helger and contributors
+ * Copyright (C) 2021 Philip Helger (www.helger.com)
  * philip[at]helger[dot]com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.photon.sql;
+package com.helger.photon.jdbc;
 
 import java.util.function.Supplier;
 
@@ -45,9 +45,16 @@ public abstract class AbstractJDBCEnabledManager
     m_aDBExecSupplier = aDBExecSupplier;
   }
 
+  /**
+   * @return A new DB executor from the Supplier provided in the constructor.
+   *         Never <code>null</code>.
+   */
   @Nonnull
   protected final DBExecutor newExecutor ()
   {
-    return m_aDBExecSupplier.get ();
+    final DBExecutor ret = m_aDBExecSupplier.get ();
+    if (ret == null)
+      throw new IllegalStateException ("The contained DBExecutor Supplier returned null!");
+    return ret;
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Philip Helger and contributors
+ * Copyright (C) 2021 Philip Helger (www.helger.com)
  * philip[at]helger[dot]com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.photon.sql.audit;
+package com.helger.photon.jdbc.audit;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,7 +45,7 @@ import com.helger.photon.audit.EAuditActionType;
 import com.helger.photon.audit.IAuditActionStringProvider;
 import com.helger.photon.audit.IAuditItem;
 import com.helger.photon.audit.IAuditor;
-import com.helger.photon.sql.AbstractJDBCEnabledManager;
+import com.helger.photon.jdbc.AbstractJDBCEnabledManager;
 import com.helger.security.authentication.subject.user.CUserID;
 import com.helger.security.authentication.subject.user.ICurrentUserIDProvider;
 

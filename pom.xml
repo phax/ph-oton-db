@@ -25,12 +25,12 @@
     <version>1.11.4</version>
   </parent>
   <groupId>com.helger.photon</groupId>
-  <artifactId>ph-oton-sql</artifactId>
+  <artifactId>ph-oton-jdbc</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
-  <name>ph-oton-sql</name>
-  <description>Adds reusable SQL functionality for ph-oton components</description>
-  <url>https://github.com/phax/ph-oton-sql</url>
+  <name>ph-oton-jdbc</name>
+  <description>Adds reusable SQL functionality using JDBC access for ph-oton components</description>
+  <url>https://github.com/phax/ph-oton-jdbc</url>
   <inceptionYear>2021</inceptionYear>
 
   <licenses>
@@ -122,8 +122,8 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Automatic-Module-Name>com.helger.photon.sql</Automatic-Module-Name>
-            <Export-Package>com.helger.photon.sql.*</Export-Package>
+            <Automatic-Module-Name>com.helger.photon.jdbc</Automatic-Module-Name>
+            <Export-Package>com.helger.photon.jdbc.*</Export-Package>
             <Import-Package>!javax.annotation.*,*</Import-Package>
           </instructions>
         </configuration>
