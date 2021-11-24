@@ -30,7 +30,7 @@
   <packaging>bundle</packaging>
   <name>ph-oton-jdbc</name>
   <description>Adds reusable SQL functionality using JDBC access for ph-oton components</description>
-  <url>https://github.com/phax/ph-oton-jdbc</url>
+  <url>https://github.com/phax/ph-oton-db</url>
   <inceptionYear>2021</inceptionYear>
 
   <licenses>
