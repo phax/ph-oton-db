@@ -102,8 +102,10 @@ public class PhotonSecurityManagerFactoryJDBC implements IFactory
     ValueEnforcer.notNull (aDBExecSupplier, "DBExecSupplier");
     ValueEnforcer.notNull (aTableNameCustomizer, "TableNameCustomizer");
 
-    if (PhotonSecurityManager.isAlreadyInitialized ())
-      throw new IllegalStateException ("PhotonSecurityManager is already initialized - call this method earlier");
+    // Required for unit tests, to set it again and again and again
+    if (false)
+      if (PhotonSecurityManager.isAlreadyInitialized ())
+        throw new IllegalStateException ("PhotonSecurityManager is already initialized - call this method earlier");
 
     // First set the factory
     PhotonSecurityManager.setFactory (new PhotonSecurityManagerFactoryJDBC (aDBExecSupplier, aTableNameCustomizer));
