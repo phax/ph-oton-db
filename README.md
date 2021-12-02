@@ -187,6 +187,8 @@ CREATE TABLE secusergroup (
 
 # News and noteworthy
 
+* v1.0.1 - 2021-12-02
+    * Removed init check in `PhotonSecurityManagerFactoryJDBC.install`
 * v1.0.0 - 2021-11-24
     * Initial version based on ph-oton 8.3.2 and ph-db 6.7.3
 
