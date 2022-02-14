@@ -62,8 +62,8 @@ CREATE TABLE `secuser` (
   `deletedt`       datetime,
   `deleteuserid`   varchar(20),
   `attrs`          text,
-  `loginname`      text         NOT NULL,
-  `email`          text,
+  `loginname`      varchar(200) NOT NULL,
+  `email`          varchar(200),
   `pwalgo`         varchar(100) NOT NULL,
   `pwsalt`         text         NOT NULL,
   `pwhash`         text         NOT NULL,
@@ -148,8 +148,8 @@ CREATE TABLE secuser (
   deletedt       timestamp,
   deleteuserid   varchar(20),
   attrs          text,
-  loginname      text         NOT NULL,
-  email          text,
+  loginname      varchar(200) NOT NULL,
+  email          varchar(200),
   pwalgo         varchar(100) NOT NULL,
   pwsalt         text         NOT NULL,
   pwhash         text         NOT NULL,
@@ -187,6 +187,8 @@ CREATE TABLE secusergroup (
 
 # News and noteworthy
 
+* v1.0.2 - 2022-02-14
+    * Changed the assumption on `secuser` table columns `email` and `loginname`
 * v1.0.1 - 2021-12-02
     * Removed init check in `PhotonSecurityManagerFactoryJDBC.install`
 * v1.0.0 - 2021-11-24
