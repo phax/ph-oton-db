@@ -226,8 +226,14 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
                                                                                                                                            LOGIN_NAME_MAX_LENGTH),
                                                                                                          DBValueHelper.getTrimmedToLength (aUser.getEmailAddress (),
                                                                                                                                            EMAIL_ADDRESS_MAX_LENGTH),
-                                                                                                         aUser.getPasswordHash ()
-                                                                                                              .getAlgorithmName (),
+                                                                                                         // TODO
+                                                                                                         // ph-commons
+                                                                                                         // 10.1.7
+                                                                                                         // PasswordSalt
+                                                                                                         // constant
+                                                                                                         DBValueHelper.getTrimmedToLength (aUser.getPasswordHash ()
+                                                                                                                                                .getAlgorithmName (),
+                                                                                                                                           100),
                                                                                                          aUser.getPasswordHash ()
                                                                                                               .getSaltAsString (),
                                                                                                          aUser.getPasswordHash ()
@@ -235,7 +241,8 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
                                                                                                          aUser.getFirstName (),
                                                                                                          aUser.getLastName (),
                                                                                                          aUser.getDescription (),
-                                                                                                         aUser.getDesiredLocaleAsString (),
+                                                                                                         DBValueHelper.getTrimmedToLength (aUser.getDesiredLocaleAsString (),
+                                                                                                                                           20),
                                                                                                          DBValueHelper.toTimestamp (aUser.getLastLoginDateTime ()),
                                                                                                          Integer.valueOf (aUser.getLoginCount ()),
                                                                                                          Integer.valueOf (aUser.getConsecutiveFailedLoginCount ()),
