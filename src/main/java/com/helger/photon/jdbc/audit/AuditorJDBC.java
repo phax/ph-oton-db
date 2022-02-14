@@ -131,7 +131,9 @@ public class AuditorJDBC extends AbstractJDBCEnabledManager implements IAuditor
       {
         // This may be triggered on the first startup where the audit table
         // is not yet present
-        throw new IllegalStateException ("Failed to create new DB entry (" + nCreated + ")");
+        throw new IllegalStateException ("Failed to create new DB entry (" +
+                                         nCreated +
+                                         "). This may only happen in migration if the underlying table is not yet present.");
       }
     });
 
