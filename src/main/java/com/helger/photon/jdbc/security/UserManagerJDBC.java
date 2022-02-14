@@ -36,6 +36,7 @@ import com.helger.commons.callback.CallbackList;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.datetime.PDTFactory;
+import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.locale.LocaleHelper;
 import com.helger.commons.mutable.MutableLong;
 import com.helger.commons.state.EChange;
@@ -66,6 +67,10 @@ import com.helger.security.password.salt.PasswordSalt;
  */
 public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implements IUserManager
 {
+  // TODO use IUserManager fields!
+  private static final int ID_MAX_LENGTH = 20;
+  private static final int LOGIN_NAME_MAX_LENGTH = 200;
+  private static final int EMAIL_ADDRESS_MAX_LENGTH = 200;
   private static final Logger LOGGER = LoggerFactory.getLogger (UserManagerJDBC.class);
 
   private final String m_sTableName;
@@ -206,19 +211,21 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
                                                               "" +
                                                               " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.getTrimmedToLength (aUser.getID (),
-                                                                                                                                           45),
+                                                                                                                                           ID_MAX_LENGTH),
                                                                                                          DBValueHelper.toTimestamp (aUser.getCreationDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (aUser.getCreationUserID (),
-                                                                                                                                           20),
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
                                                                                                          DBValueHelper.toTimestamp (aUser.getLastModificationDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (aUser.getLastModificationUserID (),
-                                                                                                                                           20),
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
                                                                                                          DBValueHelper.toTimestamp (aUser.getDeletionDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (aUser.getDeletionUserID (),
-                                                                                                                                           20),
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
                                                                                                          attrsToString (aUser.attrs ()),
-                                                                                                         aUser.getLoginName (),
-                                                                                                         aUser.getEmailAddress (),
+                                                                                                         DBValueHelper.getTrimmedToLength (aUser.getLoginName (),
+                                                                                                                                           LOGIN_NAME_MAX_LENGTH),
+                                                                                                         DBValueHelper.getTrimmedToLength (aUser.getEmailAddress (),
+                                                                                                                                           EMAIL_ADDRESS_MAX_LENGTH),
                                                                                                          aUser.getPasswordHash ()
                                                                                                               .getAlgorithmName (),
                                                                                                          aUser.getPasswordHash ()
@@ -561,8 +568,10 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
                                                               m_sTableName +
                                                               " SET loginname=?, email=?, firstname=?, lastname=?, description=?, locale=?, attrs=?, disabled=?, lastmoddt=?, lastmoduserid=?" +
                                                               " WHERE id=?",
-                                                              new ConstantPreparedStatementDataProvider (sNewLoginName,
-                                                                                                         sNewEmailAddress,
+                                                              new ConstantPreparedStatementDataProvider (DBValueHelper.getTrimmedToLength (sNewLoginName,
+                                                                                                                                           LOGIN_NAME_MAX_LENGTH),
+                                                                                                         DBValueHelper.getTrimmedToLength (sNewEmailAddress,
+                                                                                                                                           EMAIL_ADDRESS_MAX_LENGTH),
                                                                                                          sNewFirstName,
                                                                                                          sNewLastName,
                                                                                                          sNewDescription,
@@ -572,8 +581,9 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
                                                                                                          Boolean.valueOf (bNewDisabled),
                                                                                                          DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                           20),
-                                                                                                         sUserID));
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                         DBValueHelper.getTrimmedToLength (sUserID,
+                                                                                                                                           ID_MAX_LENGTH)));
       aUpdated.set (nUpdated);
     });
 
@@ -643,8 +653,9 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
                                                                                                          aPasswordHash.getPasswordHashValue (),
                                                                                                          DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                           20),
-                                                                                                         sUserID));
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                         DBValueHelper.getTrimmedToLength (sUserID,
+                                                                                                                                           ID_MAX_LENGTH)));
       aUpdated.set (nUpdated);
     });
 
@@ -760,8 +771,9 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
       final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " + m_sTableName + " SET deletedt=?, deleteuserid=? WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                           20),
-                                                                                                         sUserID));
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                         DBValueHelper.getTrimmedToLength (sUserID,
+                                                                                                                                           ID_MAX_LENGTH)));
       aUpdated.set (nUpdated);
     });
 
@@ -802,8 +814,9 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
                                                               " SET lastmoddt=?, lastmoduserid=?, deletedt=NULL, deleteuserid=NULL WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                           20),
-                                                                                                         sUserID));
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                         DBValueHelper.getTrimmedToLength (sUserID,
+                                                                                                                                           ID_MAX_LENGTH)));
       aUpdated.set (nUpdated);
     });
 
@@ -844,8 +857,9 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
                                                               " SET disabled=true, lastmoddt=?, lastmoduserid=? WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                           20),
-                                                                                                         sUserID));
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                         DBValueHelper.getTrimmedToLength (sUserID,
+                                                                                                                                           ID_MAX_LENGTH)));
       aUpdated.set (nUpdated);
     });
 
@@ -886,8 +900,9 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
                                                               " SET disabled=false, lastmoddt=?, lastmoduserid=? WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                           20),
-                                                                                                         sUserID));
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                         DBValueHelper.getTrimmedToLength (sUserID,
+                                                                                                                                           ID_MAX_LENGTH)));
       aUpdated.set (nUpdated);
     });
 

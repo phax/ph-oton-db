@@ -34,6 +34,7 @@ import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.datetime.PDTFactory;
+import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.state.ESuccess;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.type.ObjectType;
@@ -121,9 +122,9 @@ public class AuditorJDBC extends AbstractJDBCEnabledManager implements IAuditor
                                                               " VALUES (?, ?, ?, ?, ?)",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (sUserID,
-                                                                                                                                           20),
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
                                                                                                          DBValueHelper.getTrimmedToLength (eActionType.getID (),
-                                                                                                                                           10),
+                                                                                                                                           EAuditActionType.MAX_ID_LENGTH),
                                                                                                          Boolean.valueOf (eSuccess.isSuccess ()),
                                                                                                          sFullAction));
       if (nCreated != 1)

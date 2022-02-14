@@ -33,6 +33,7 @@ import com.helger.commons.collection.impl.CommonsHashSet;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.collection.impl.ICommonsSet;
 import com.helger.commons.datetime.PDTFactory;
+import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.mutable.MutableBoolean;
 import com.helger.commons.mutable.MutableLong;
 import com.helger.commons.state.EChange;
@@ -231,13 +232,13 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
                                                                                                                                            45),
                                                                                                          DBValueHelper.toTimestamp (aUserGroup.getCreationDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (aUserGroup.getCreationUserID (),
-                                                                                                                                           20),
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
                                                                                                          DBValueHelper.toTimestamp (aUserGroup.getLastModificationDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (aUserGroup.getLastModificationUserID (),
-                                                                                                                                           20),
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
                                                                                                          DBValueHelper.toTimestamp (aUserGroup.getDeletionDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (aUserGroup.getDeletionUserID (),
-                                                                                                                                           20),
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
                                                                                                          attrsToString (aUserGroup.attrs ()),
                                                                                                          DBValueHelper.getTrimmedToLength (aUserGroup.getName (),
                                                                                                                                            255),
@@ -315,8 +316,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
       final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " + m_sTableName + " SET deletedt=?, deleteuserid=? WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                           20),
-                                                                                                         sUserGroupID));
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                         DBValueHelper.getTrimmedToLength (sUserGroupID,
+                                                                                                                                           45)));
       aUpdated.set (nUpdated);
     });
 
@@ -357,8 +359,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
                                                               " SET lastmoddt=?, lastmoduserid=?, deletedt=NULL, deleteuserid=NULL WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                           20),
-                                                                                                         sUserGroupID));
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                         DBValueHelper.getTrimmedToLength (sUserGroupID,
+                                                                                                                                           45)));
       aUpdated.set (nUpdated);
     });
 
@@ -446,8 +449,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
                                                               new ConstantPreparedStatementDataProvider (sNewName,
                                                                                                          DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                           20),
-                                                                                                         sUserGroupID));
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                         DBValueHelper.getTrimmedToLength (sUserGroupID,
+                                                                                                                                           45)));
       aUpdated.set (nUpdated);
     });
 
@@ -493,8 +497,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
                                                                                                          attrsToString (aNewCustomAttrs),
                                                                                                          DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                           20),
-                                                                                                         sUserGroupID));
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                         DBValueHelper.getTrimmedToLength (sUserGroupID,
+                                                                                                                                           45)));
       aUpdated.set (nUpdated);
     });
 
@@ -557,8 +562,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
                                                                 new ConstantPreparedStatementDataProvider (idsToString (aAssignedIDs),
                                                                                                            DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                            DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                             20),
-                                                                                                           sUserGroupID));
+                                                                                                                                             GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                           DBValueHelper.getTrimmedToLength (sUserGroupID,
+                                                                                                                                             45)));
         aUpdated.set (nUpdated);
       }
     });
@@ -621,8 +627,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
                                                                 new ConstantPreparedStatementDataProvider (idsToString (aAssignedIDs),
                                                                                                            DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                            DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                             20),
-                                                                                                           sUserGroupID));
+                                                                                                                                             GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                           DBValueHelper.getTrimmedToLength (sUserGroupID,
+                                                                                                                                             45)));
         aUpdated.set (nUpdated);
       }
     });
@@ -683,8 +690,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
                                                                   new ConstantPreparedStatementDataProvider (idsToString (aAssignedIDs),
                                                                                                              DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                              DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                               20),
-                                                                                                             sUserGroupID));
+                                                                                                                                               GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                             DBValueHelper.getTrimmedToLength (sUserGroupID,
+                                                                                                                                               45)));
           aUpdated.inc (nUpdated);
         }
       }
@@ -766,8 +774,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
                                                                 new ConstantPreparedStatementDataProvider (idsToString (aAssignedIDs),
                                                                                                            DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                            DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                             20),
-                                                                                                           sUserGroupID));
+                                                                                                                                             GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                           DBValueHelper.getTrimmedToLength (sUserGroupID,
+                                                                                                                                             45)));
         aUpdated.set (nUpdated);
       }
     });
@@ -830,8 +839,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
                                                                 new ConstantPreparedStatementDataProvider (idsToString (aAssignedIDs),
                                                                                                            DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                            DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                             20),
-                                                                                                           sUserGroupID));
+                                                                                                                                             GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                           DBValueHelper.getTrimmedToLength (sUserGroupID,
+                                                                                                                                             45)));
         aUpdated.set (nUpdated);
       }
     });
@@ -892,8 +902,9 @@ public class UserGroupManagerJDBC extends AbstractJDBCEnabledSecurityManager imp
                                                                   new ConstantPreparedStatementDataProvider (idsToString (aAssignedIDs),
                                                                                                              DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                              DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                               20),
-                                                                                                             sUserGroupID));
+                                                                                                                                               GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                             DBValueHelper.getTrimmedToLength (sUserGroupID,
+                                                                                                                                               45)));
           aUpdated.inc (nUpdated);
         }
       }

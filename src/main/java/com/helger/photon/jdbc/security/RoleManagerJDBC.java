@@ -30,6 +30,7 @@ import com.helger.commons.callback.CallbackList;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.datetime.PDTFactory;
+import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.mutable.MutableLong;
 import com.helger.commons.state.EChange;
 import com.helger.commons.state.ESuccess;
@@ -56,6 +57,9 @@ import com.helger.photon.security.role.RoleManager;
  */
 public class RoleManagerJDBC extends AbstractJDBCEnabledSecurityManager implements IRoleManager
 {
+  private static final int ROLE_ID_MAX_LENGTH = 45;
+  private static final int ROLE_NAME_MAX_LENGTH = 255;
+
   private final String m_sTableName;
   private final CallbackList <IRoleModificationCallback> m_aCallbacks = new CallbackList <> ();
 
@@ -146,19 +150,19 @@ public class RoleManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
                                                               " name, description)" +
                                                               " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.getTrimmedToLength (aRole.getID (),
-                                                                                                                                           45),
+                                                                                                                                           ROLE_ID_MAX_LENGTH),
                                                                                                          DBValueHelper.toTimestamp (aRole.getCreationDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (aRole.getCreationUserID (),
-                                                                                                                                           20),
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
                                                                                                          DBValueHelper.toTimestamp (aRole.getLastModificationDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (aRole.getLastModificationUserID (),
-                                                                                                                                           20),
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
                                                                                                          DBValueHelper.toTimestamp (aRole.getDeletionDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (aRole.getDeletionUserID (),
-                                                                                                                                           20),
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
                                                                                                          attrsToString (aRole.attrs ()),
                                                                                                          DBValueHelper.getTrimmedToLength (aRole.getName (),
-                                                                                                                                           255),
+                                                                                                                                           ROLE_NAME_MAX_LENGTH),
                                                                                                          aRole.getDescription ()));
       if (nCreated != 1)
         throw new IllegalStateException ("Failed to create new DB entry (" + nCreated + ")");
@@ -229,8 +233,9 @@ public class RoleManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
       final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " + m_sTableName + " SET deletedt=?, deleteuserid=? WHERE id=?",
                                                               new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                           20),
-                                                                                                         sRoleID));
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                         DBValueHelper.getTrimmedToLength (sRoleID,
+                                                                                                                                           ROLE_ID_MAX_LENGTH)));
       aUpdated.set (nUpdated);
     });
 
@@ -268,7 +273,7 @@ public class RoleManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
                                 " FROM " +
                                 m_sTableName +
                                 " WHERE id=?",
-                                new ConstantPreparedStatementDataProvider (sRoleID),
+                                new ConstantPreparedStatementDataProvider (DBValueHelper.getTrimmedToLength (sRoleID, ROLE_ID_MAX_LENGTH)),
                                 aDBResult::set);
     if (aDBResult.isNotSet ())
       return null;
@@ -301,8 +306,9 @@ public class RoleManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
                                                               new ConstantPreparedStatementDataProvider (sNewName,
                                                                                                          DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                           20),
-                                                                                                         sRoleID));
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                         DBValueHelper.getTrimmedToLength (sRoleID,
+                                                                                                                                           ROLE_ID_MAX_LENGTH)));
       aUpdated.set (nUpdated);
     });
 
@@ -349,8 +355,9 @@ public class RoleManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
                                                                                                          attrsToString (aNewCustomAttrs),
                                                                                                          DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
-                                                                                                                                           20),
-                                                                                                         sRoleID));
+                                                                                                                                           GlobalIDFactory.STRING_ID_MAX_LENGTH),
+                                                                                                         DBValueHelper.getTrimmedToLength (sRoleID,
+                                                                                                                                           ROLE_ID_MAX_LENGTH)));
       aUpdated.set (nUpdated);
     });
 
