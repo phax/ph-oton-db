@@ -518,13 +518,14 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
   @ReturnsMutableCopy
   public ICommonsList <IUser> getAllActiveUsers ()
   {
-    return _getAllWhere ("deletedt IS NULL AND disabled=false", null);
+    return _getAllWhere ("deletedt IS NULL AND disabled=?", new ConstantPreparedStatementDataProvider (Boolean.FALSE));
   }
 
   @Nonnegative
   public long getActiveUserCount ()
   {
-    return newExecutor ().queryCount ("SELECT COUNT(*) FROM " + m_sTableName + " WHERE deletedt IS NULL AND disabled=false");
+    return newExecutor ().queryCount ("SELECT COUNT(*) FROM " + m_sTableName + " WHERE deletedt IS NULL AND disabled=?",
+                                      new ConstantPreparedStatementDataProvider (Boolean.FALSE));
   }
 
   public boolean containsAnyActiveUser ()
@@ -536,7 +537,7 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
   @ReturnsMutableCopy
   public ICommonsList <IUser> getAllDisabledUsers ()
   {
-    return _getAllWhere ("deletedt IS NULL AND disabled=true", null);
+    return _getAllWhere ("deletedt IS NULL AND disabled=?", new ConstantPreparedStatementDataProvider (Boolean.TRUE));
   }
 
   @Nonnull
@@ -861,8 +862,9 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
       // Update existing
       final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
                                                               m_sTableName +
-                                                              " SET disabled=true, lastmoddt=?, lastmoduserid=? WHERE id=?",
-                                                              new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
+                                                              " SET disabled=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
+                                                              new ConstantPreparedStatementDataProvider (Boolean.TRUE,
+                                                                                                         DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
                                                                                                                                            GlobalIDFactory.STRING_ID_MAX_LENGTH),
                                                                                                          DBValueHelper.getTrimmedToLength (sUserID,
@@ -904,8 +906,9 @@ public class UserManagerJDBC extends AbstractJDBCEnabledSecurityManager implemen
       // Update existing
       final long nUpdated = aExecutor.insertOrUpdateOrDelete ("UPDATE " +
                                                               m_sTableName +
-                                                              " SET disabled=false, lastmoddt=?, lastmoduserid=? WHERE id=?",
-                                                              new ConstantPreparedStatementDataProvider (DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
+                                                              " SET disabled=?, lastmoddt=?, lastmoduserid=? WHERE id=?",
+                                                              new ConstantPreparedStatementDataProvider (Boolean.FALSE,
+                                                                                                         DBValueHelper.toTimestamp (PDTFactory.getCurrentLocalDateTime ()),
                                                                                                          DBValueHelper.getTrimmedToLength (BusinessObjectHelper.getUserIDOrFallback (),
                                                                                                                                            GlobalIDFactory.STRING_ID_MAX_LENGTH),
                                                                                                          DBValueHelper.getTrimmedToLength (sUserID,
