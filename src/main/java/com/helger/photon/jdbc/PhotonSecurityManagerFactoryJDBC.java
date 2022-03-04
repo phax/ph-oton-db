@@ -20,11 +20,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.helger.commons.ValueEnforcer;
-import com.helger.commons.regex.RegExHelper;
-import com.helger.commons.string.StringHelper;
 import com.helger.dao.DAOException;
 import com.helger.db.jdbc.executor.DBExecutor;
 import com.helger.photon.audit.IAuditManager;
@@ -48,27 +45,15 @@ import com.helger.photon.security.usergroup.IUserGroupManager;
 public class PhotonSecurityManagerFactoryJDBC implements IFactory
 {
   private final Supplier <? extends DBExecutor> m_aDBExecSupplier;
-  private final String m_sSchemaName;
   private final Function <String, String> m_aTableNameCustomizer;
 
   public PhotonSecurityManagerFactoryJDBC (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier,
-                                           @Nullable final String sSchemaName,
                                            @Nonnull final Function <String, String> aTableNameCustomizer)
   {
     ValueEnforcer.notNull (aDBExecSupplier, "DBExecSupplier");
-    ValueEnforcer.isTrue ( () -> StringHelper.hasNoText (sSchemaName) || RegExHelper.stringMatchesPattern ("[0-9a-zA-Z]+", sSchemaName),
-                           "Schema name is invalid");
     ValueEnforcer.notNull (aTableNameCustomizer, "TableNameCustomizer");
     m_aDBExecSupplier = aDBExecSupplier;
-    m_sSchemaName = sSchemaName;
-    m_aTableNameCustomizer = StringHelper.hasText (sSchemaName) ? x -> sSchemaName + "." + aTableNameCustomizer.apply (x)
-                                                                : aTableNameCustomizer;
-  }
-
-  @Nullable
-  public final String getSchemaName ()
-  {
-    return m_sSchemaName;
+    m_aTableNameCustomizer = aTableNameCustomizer;
   }
 
   @Nonnull
@@ -107,14 +92,11 @@ public class PhotonSecurityManagerFactoryJDBC implements IFactory
    * @param aDBExecSupplier
    *        The main supplier for {@link DBExecutor} objects. This will be
    *        passed to all the main managers. May not be <code>null</code>.
-   * @param sSchemaName
-   *        The DB Schema name to be used. May be <code>null</code>.
    * @param aTableNameCustomizer
    *        A customizer for database table names used by this class. May not be
    *        <code>null</code>.
    */
   public static void install (@Nonnull final Supplier <? extends DBExecutor> aDBExecSupplier,
-                              @Nullable final String sSchemaName,
                               @Nonnull final Function <String, String> aTableNameCustomizer)
   {
     ValueEnforcer.notNull (aDBExecSupplier, "DBExecSupplier");
@@ -126,7 +108,7 @@ public class PhotonSecurityManagerFactoryJDBC implements IFactory
         throw new IllegalStateException ("PhotonSecurityManager is already initialized - call this method earlier");
 
     // First set the factory
-    PhotonSecurityManager.setFactory (new PhotonSecurityManagerFactoryJDBC (aDBExecSupplier, sSchemaName, aTableNameCustomizer));
+    PhotonSecurityManager.setFactory (new PhotonSecurityManagerFactoryJDBC (aDBExecSupplier, aTableNameCustomizer));
     // then get it installed
     PhotonSecurityManager.getInstance ();
   }
