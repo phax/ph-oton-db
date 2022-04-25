@@ -99,9 +99,11 @@ public class AuditorJDBC extends AbstractJDBCEnabledManager implements IAuditor
                                @Nullable final Object... aArgs)
   {
     // Maybe null, so default like XML version
-    final String sUserID = StringHelper.getNotEmpty (m_aCurrentUserIDProvider.getCurrentUserID (), CUserID.USER_ID_GUEST);
+    final String sUserID = StringHelper.getNotEmpty (m_aCurrentUserIDProvider.getCurrentUserID (),
+                                                     CUserID.USER_ID_GUEST);
     // Combine arguments into one big JSON
-    final String sFullAction = IAuditActionStringProvider.JSON.apply (aActionObjectType != null ? aActionObjectType.getName () : sAction,
+    final String sFullAction = IAuditActionStringProvider.JSON.apply (aActionObjectType != null ? aActionObjectType.getName ()
+                                                                                                : sAction,
                                                                       aArgs);
 
     final DBExecutor aExecutor;
@@ -169,7 +171,7 @@ public class AuditorJDBC extends AbstractJDBCEnabledManager implements IAuditor
   public LocalDate getEarliestAuditDate ()
   {
     final Wrapper <DBResultRow> aDBResult = new Wrapper <> ();
-    newExecutor ().querySingle ("SELECT dt FROM " + m_sTableName + " ORDER BY dt ASC LIMIT 1", aDBResult::set);
+    newExecutor ().querySingle ("SELECT dt FROM " + m_sTableName + " ORDER BY dt ASC" + " LIMIT 1", aDBResult::set);
     if (aDBResult.isSet ())
     {
       // getAsLocalDate does not work
