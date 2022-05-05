@@ -187,6 +187,8 @@ CREATE TABLE secusergroup (
 
 # News and noteworthy
 
+* v1.0.3 - 2022-05-05
+    * Bugfix for Oracle to avoid constant boolean values
 * v1.0.2 - 2022-02-14
     * Changed the assumption on `secuser` table columns `email` and `loginname`
 * v1.0.1 - 2021-12-02
