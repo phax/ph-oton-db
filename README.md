@@ -1,5 +1,7 @@
 # ph-oton-jdbc
 
+## This has been merged into ph-oton as per 30.8.2022
+
 Temporary repository to mix ph-oton with SQL requirements using JDBC access. Once stable merged into ph-oton.
 
 # Usage
